@@ -81,7 +81,7 @@ def calculator(st, mt=mt, basic_operators=False, compound_operators=False, prior
 
     # preprocessing
     st = make_lower(st)
-#     st=remove_spaces(st)
+    st=remove_spaces(st)
 
     if not(check_not_empty(st)):
         return "ERROR: BLA BLA BLA"
