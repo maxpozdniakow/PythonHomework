@@ -427,3 +427,4 @@ def main():
     parser.add_argument('EXPRESSION', type=str,
                         help='expression string to evaluate')
     args = parser.parse_args()
+    print(calculator(args.EXPRESSION, mt))
