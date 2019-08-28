@@ -81,10 +81,12 @@ def calculator(st, mt=mt, basic_operators=False, compound_operators=False, prior
 
     # preprocessing
     st = make_lower(st)
-    st = remove_spaces(st)
+#     st=remove_spaces(st)
 
     if not(check_not_empty(st)):
         return "ERROR: BLA BLA BLA"
+
+
 
     if not(
             check_chars(st, good_chars)):
@@ -94,21 +96,30 @@ def calculator(st, mt=mt, basic_operators=False, compound_operators=False, prior
             check_dots(st)):
         return "ERROR: BLA BLA BLA"
 
+
+
     if not(
         check_quote_balance(st) and
         check_not_empty_quotes(st)
     ):
         return "ERROR: BLA BLA BLA"
 
+
+
     st = replace_const(st, const_dict)
     if not(st):
         return "ERROR: BLA BLA BLA"
 
+
+
+
     if not(
-        check_functions(st, funcs) and
-        check_function_quotes(st)
+        check_functions(st, funcs)
+        #         and check_function_quotes(st)
     ):
         return "ERROR: BLA BLA BLA"
+
+
 
     if not(
             check_operators(st, basic_operators, compound_operators) and
@@ -136,6 +147,13 @@ def check_chars(string, good_chars):
         return False
     else:
         return True
+
+# def check_dots(st):
+#         t=re.findall("[^0-9]\.[^0-9]|^\.[^0-9]|[^0-9]\.$",st)
+#         if len(t)>0:
+#             return t
+#         else:
+#             return False
 
 
 def check_dots(st):
@@ -184,20 +202,27 @@ def check_not_empty_quotes(st):
         return True
 
 
+"asd".replace("a", "b")
+
+
 def replace_const(st, const_dict):
-    re_exp = r'[a-zA-Z]+'
-    word_arr = set(re.findall(re_exp, st))
+    p = re.compile("[a-z]+")
+    edges = [(m.start(), m.end(), m.group())
+             for m in p.finditer(st) if m.group() in const_dict]
+    edges = sorted(edges)
+    consts = [i[2] for i in edges]
+    edges = [j for i in edges for j in i[0:2]]
+    edges = [0]+edges+[len(st)]
+    edges = list(zip(edges[0:-1], edges[1:]))
+    edges = [st[i[0]:i[1]] if ind % 2 == 0
+             else str(const_dict[consts[(ind-1)//2]]) for ind, i in enumerate(edges)]
+    return "".join(edges)
 
-    word_arr = list(word_arr.intersection(set(const_dict)))
-    word_arr = sorted(word_arr, key=lambda x: len(x), reverse=True)
 
-    if ("inf" in word_arr) or ("nan" in word_arr):
-        return False
-    word_arr = sorted(word_arr, reverse=True)
-    for i in word_arr:
-        tmp_val = str(const_dict[i])
-        st = st.replace(i, tmp_val)
-    return st
+[i+"(" for i in set(["a", "b", "c"])]
+
+consts = get_module_const(mt)
+consts
 
 
 def check_functions(st, functions):
@@ -206,17 +231,6 @@ def check_functions(st, functions):
     all_func = re.findall(tmp_re_1, st)
     if len(set(all_func)-set(functions)) != 0:
         return False
-
-
-#     #check if there are any nums near brackets
-
-#     if len(set(re.findall("([\w]+\()",st))-set([i+"(" for i in functions]))!=0:
-#         return False
-
-
-#     if len(re.findall("([a-z]+[^\(]+)",st))!=0:
-#         return False
-
     return True
 
 
@@ -375,7 +389,15 @@ def split_by_quotes(st, basic_operators, compound_operators, is_func=False):
     return split_arr
 
 
+def key_by_pripority(x, priority_dict):
+    if x[0] == priority_dict["^"]:
+        return (x[0], x[1])
+    else:
+        return (x[0], -x[1])
+
+
 def calc_rec(exp_arr, func_dict, priority_dict, operators):
+
 
     if type(exp_arr) == list:
 
@@ -400,12 +422,14 @@ def calc_rec(exp_arr, func_dict, priority_dict, operators):
 
         op_ind = [(priority_dict[i], ind) for ind, i in enumerate(
             exp_arr) if (type(i) == str) and i in operators.keys()]
-        op_ind = sorted(op_ind, key=lambda x: (x[0], -x[1]), reverse=True)
+        op_ind = sorted(op_ind, key=lambda x: key_by_pripority(
+            x, priority_dict), reverse=True)
 
         while (len(op_ind) > 0):
             i = op_ind[0][1]
             arg_1 = exp_arr[i-1]
             arg_2 = exp_arr[i+1]
+
 
             exp_arr[i] = operators[exp_arr[i]](arg_1, arg_2)
 
@@ -414,12 +438,20 @@ def calc_rec(exp_arr, func_dict, priority_dict, operators):
 
             op_ind = [(priority_dict[i], ind) for ind, i in enumerate(
                 exp_arr) if (type(i) == str) and i in operators.keys()]
-            op_ind = sorted(op_ind, key=lambda x: (x[0], -x[1]), reverse=True)
+            op_ind = sorted(op_ind, key=lambda x: key_by_pripority(
+                x, priority_dict), reverse=True)
         if len(exp_arr) == 1:
             return exp_arr[0]
 
     return exp_arr
 
+def main():
+    parser = argparse.ArgumentParser(
+        description='Pure-python command-line calculator.')
+    parser.add_argument('EXPRESSION', type=str,
+                        help='expression string to evaluate')
+    args = parser.parse_args()
+    print(calculator(args.EXPRESSION, mt))
 
 def main():
     parser = argparse.ArgumentParser(
