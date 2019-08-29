@@ -52,8 +52,10 @@ def get_operator_chars(operators):
 # ABS!!!!
 
 
-def get_num_of_params(func):
-    sig = signature(func)
+def get_num_of_params(func, func_dict):
+    if (func == "pow") or (func == "log"):
+        return 2
+    sig = signature(func_dict[func])
     return len(sig.parameters)
 
 
@@ -606,7 +608,7 @@ def calc_rec(exp_arr, func_dict, priority_dict, operators):
             i = func_ind[0]
 
             if(type(exp_arr[i+1]) == list):
-                if len(exp_arr[i+1]) > get_num_of_params(func_dict[exp_arr[i]]):
+                if len(exp_arr[i+1]) > get_num_of_params(exp_arr[i], func_dict):
                     return "error"
                 exp_arr[i] = func_dict[exp_arr[i]](*exp_arr[i+1])
             else:
