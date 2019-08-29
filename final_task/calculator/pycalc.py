@@ -428,13 +428,6 @@ def replace_unary(exp):
     return rez_arr
 
 
-def replace_atom_unary(arr):
-    if arr[0] == arr[1]:
-        return "+"
-    else:
-        return "-"
-
-
 def key_by_pripority(x, priority_dict):
     if x[0] == priority_dict["^"]:
         return (x[0], x[1])
