@@ -14,6 +14,36 @@ def get_module_const(module):
     object_arr = [i for i in dir(module) if not(i.startswith("__"))]
     return {i: getattr(mt, i) for i in object_arr if type(getattr(mt, i)) == float}
 
+# ЛОГАРИФМЫ! done
+
+# запятые
+
+# функции с цифрами на конце
+
+# App plan:
+
+# проверка и предобработка:
+# make_lower
+# remove_spaces
+# check_not_empty
+# check_chars
+# check_dots
+# 	есть только возможные символы
+# check_quote_balance
+# 	есть только возможные символы, соблюдён баланс скобок
+# check_not_empty_quotes
+# 	есть только возможные символы, соблюдён баланс скобок, в скобках что-то написано
+# replace_const
+# check_functions
+# check_function_quotes
+# 	есть только возможные символы, соблюдён баланс скобок, в скобках что-то написано, все буквенные выражения- функции, все функции написаны правильно
+# check_operators
+# check_operator_arg
+# 	есть только возможные символы, соблюдён баланс скобок, в скобках что-то написано, все буквенные выражения- функции, все функции написаны правильно, все операторы написаны правильно
+
+# вычесления:
+# split_by_quotes
+
 
 def get_operator_chars(operators):
     operator_chars = "".join(set("".join(list(operators))))
@@ -123,11 +153,10 @@ def calculator(st, mt=mt, basic_operators=False, compound_operators=False, prior
     ):
         return "ERROR: BLA BLA BLA"
 
-
-#     if not(
-#     check_operators(st,basic_operators,compound_operators) and
-#     check_operator_arg(st,operator_chars)):
-#         return "ERROR: BLA BLA BLA"
+    if not(
+            check_operators(st, basic_operators, compound_operators) and
+            check_operator_arg(st, operator_chars)):
+        return "ERROR: BLA BLA BLA"
 
     st = split_by_quotes(st, basic_operators, compound_operators)
     st = replace_unary(st)
@@ -152,7 +181,6 @@ def check_spaces(st, operator_chars):
     operator_chars = ["//" + i for i in operator_chars if i not in "+-"]
     operator_chars = "".join(operator_chars)
     re_oper = "["+operator_chars+"] ["+operator_chars+"]"
-
     if len(re.findall(re_oper, st)) > 0:
         return False
     return True
@@ -167,6 +195,13 @@ def check_chars(string, good_chars):
         return False
     else:
         return True
+
+# def check_dots(st):
+#         t=re.findall("[^0-9]\.[^0-9]|^\.[^0-9]|[^0-9]\.$",st)
+#         if len(t)>0:
+#             return t
+#         else:
+#             return False
 
 
 def check_dots(st):
@@ -228,6 +263,56 @@ def replace_const(st, const_dict):
              else str(const_dict[consts[(ind-1)//2]]) for ind, i in enumerate(edges)]
     return "".join(edges)
 
+# def replace_const(st,const_dict):
+#     re_exp = r'[a-zA-Z]+'
+#     word_arr=set(re.findall(re_exp,st))
+
+#     word_arr=list(word_arr.intersection(set(const_dict)))
+#     word_arr=sorted(word_arr,key=lambda x: len(x),reverse=True)
+
+#     if ("inf" in word_arr) or ("nan" in word_arr):
+#         return False
+#     word_arr=sorted(word_arr,reverse=True)
+#     for i in word_arr:
+#         tmp_val=str(const_dict[i])
+#         st=st.replace(i,tmp_val)
+#     return st
+
+# def replace_const(st,const_dict):
+#     re_exp = r'[a-zA-Z]+'
+#     word_arr=set(re.findall(re_exp,st))
+
+#     word_arr=list(word_arr.intersection(set(const_dict)))
+#     word_arr=sorted(word_arr,key=lambda x: len(x),reverse=True)
+
+#     if ("inf" in word_arr) or ("nan" in word_arr):
+#         return False
+
+#     for i in word_arr:
+#         tmp_val=const_dict[i]
+#         pat_re="([\W]|^)"+i+"([\W]|$)"
+#         repl_re=r"\g<1>"+str(tmp_val)+r"\g<2>"
+#         st=re.sub(pat_re,repl_re,st)
+#     return st
+
+# def replace_const(st, const_dict):
+
+#     #checking constants, which cannot be proccessed with calculator
+#     for i in ["inf","nan"]:
+#         pat_re="([\W]|^)"+i+"([\W]|$)"
+#         if len(re.findall(pat_re,st))>0:
+#             return False
+
+#     #replacing constants:
+#     for i in const_dict.items():
+#         pat_re="([\W]|^)"+i[0]+"([\W]|$)"
+#         precision=3
+#         tmp_val=round(i[1],precision)
+#         repl_re=r"\g<1>"+str(tmp_val)+r"\g<2>"
+#         st=re.sub(pat_re,repl_re,st)
+
+#     return st
+
 
 def check_functions(st, functions):
     # checking if all words in string are functions
@@ -253,7 +338,7 @@ def check_function_quotes(st):
     for ind, i in enumerate(st[:-1]):
         if i.isalpha():
             if (not st[ind+1].isalpha()
-                ) and st[ind+1] != "(":
+                    ) and st[ind+1] != "(":
                 return False
 
     if st[-1].isalpha():
@@ -271,25 +356,115 @@ def check_operators(st, basic_operators, compound_operators):
 
     tmp_re = "["+operator_chars_re+"]"+"+"
     found_arr = re.findall(tmp_re, st)
+    found_arr = [i for i in found_arr if len(set(i)-{"+", "-"}) > 0]
+
     if len(set(found_arr)-(set(basic_operators
                                ).union(set(compound_operators)))) > 0:
         return False
     else:
         return True
 
+# def check_operators(st, basic_operators, compound_operators):
+
+#     operator_chars=get_operator_chars({**basic_operators,**compound_operators})
+#     operator_chars_re="".join(np.asarray((list(zip("\\"*len(operator_chars),operator_chars)))).reshape((-1,)))
+
+#     tmp_re="["+operator_chars_re+"]"+"+"
+#     found_arr=re.findall(tmp_re,st)
+#     if len(set(found_arr)-(set(basic_operators
+#                            ).union(set(compound_operators))))>0:
+#         return False
+#     else:
+#         return True
+
 
 def check_operator_arg(st, operator_chars):
-    if st[0] in operator_chars or st[-1] in operator_chars:
+
+    if st[-1] in ["+", "-"]:
         return False
 
-    if len(st) <= 2:
-        return True
+    bad_unary = [i for ind, i in enumerate(st)
+                 if (i in ["+", "-"]) and
+                 st[ind+1] not in "(0123456789abcdefghijklmnopqrstuvwxyz"]
+    if len(bad_unary) > 0:
+        return False
 
-    for i in range(1, len(st)-1):
-        if (st[i] in operator_chars) and ((st[i+1] == ")") or (st[i-1] == "(")):
+    operator_chars = [i for i in operator_chars if i not in ["+", "-"]]
 
-            return False
+    if (st[0] in operator_chars) or (st[-1] in operator_chars):
+        return False
+
+    bad_binary = [i for ind, i in enumerate(st)
+                  if (i in operator_chars) and
+                  (st[ind+1] == ")") or (st[ind-1] == "(")
+                  ]
+
+    if len(bad_unary) > 0:
+        return False
+
     return True
+
+# def check_operator_arg(st,operator_chars):
+#     if st[0] in operator_chars or st[-1] in operator_chars:
+#         return False
+
+#     if len(st)<=2:
+#         return True
+
+#     for i in range(1,len(st)-1):
+#         if (st[i] in operator_chars) and ((st[i+1]==")") or (st[i-1]=="(")):
+
+
+#             return False
+#     return True
+
+# def split_by_quotes(st,operator_chars):
+#     re_operators="".join(["\\"+i+"|" for i in operator_chars])
+#     re_tmp_1="([\d]+[\.]?[\d]*|[a-zA-Z]+|"+re_operators[:-1]+")"
+
+#     if "(" not in st:
+# #         re_tmp_1="([\d]+[\.]?[\d]*|\*|\+|-|[a-zA-Z]+)"
+
+#         tmp_st=re.findall(re_tmp_1,st)
+#         return tmp_st
+#     else:
+#         it=0
+#         left_q=[]
+#         right_q=[]
+
+#         for ind,i in enumerate(st):
+#             if i==")":
+#                 right_q.append((it,ind))
+#                 it=it-1
+#             if i=="(":
+#                 it=it+1
+#                 left_q.append((it,ind))
+
+#         left_q=[i[1] for i in left_q if i[0]==1]
+#         right_q=[i[1] for i in right_q if i[0]==1]
+
+#         edges=sorted(left_q+right_q)
+
+
+# #         re_tmp_1="([\d]+[\.]?[\d]*|[a-zA-Z]+|"+re_operators+")"
+
+#         split_arr=[]
+#         if st[0:edges[0]]!="":
+#             split_arr=split_arr+re.findall(re_tmp_1,st[0:edges[0]])
+
+#         for ind,i in enumerate(edges[:-1]):
+#             tmp_st=st[i+1:edges[ind+1]]
+#             if st[i]=="(":
+#                 tmp_st=split_by_quotes(tmp_st,operator_chars)
+#                 split_arr.append(tmp_st)
+#             else:
+#                 tmp_st=re.findall(re_tmp_1,tmp_st)
+#                 split_arr=split_arr+tmp_st
+
+#         if st[edges[-1]+1:len(st)]!="":
+#             split_arr=split_arr+re.findall(re_tmp_1,st[edges[-1]+1:len(st)])
+
+#         return split_arr
 
 
 def split_simple_exp(st, basic_operators, compound_operators):
@@ -532,6 +707,27 @@ def calc_rec(exp_arr, func_dict, priority_dict, operators):
             return exp_arr[0]
 
     return exp_arr
+
+
+def check_functions(st, functions):
+    # checking if all words in string are functions
+    tmp_re_1 = r"([a-z]+[\w]*)"
+    all_func = re.findall(tmp_re_1, st)
+    if len(set(all_func)-set(functions)) != 0:
+        return False
+
+    # check if there are any nums near brackets
+    found_arr = re.findall("([a-z0-9]+)\(", st)
+
+    if len(set(found_arr)-set(functions)) != 0:
+        return False
+
+    found_arr = re.findall("[a-z0-9]\(", st)
+
+    if len(found_arr) != len(all_func):
+        return False
+
+    return True
 
 
 def main():
