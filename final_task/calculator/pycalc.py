@@ -409,7 +409,7 @@ def check_operator_arg(st, operator_chars):
 
     bad_unary = [i for ind, i in enumerate(st)
                  if (i in ["+", "-"]) and
-                 st[ind+1] not in "(0123456789abcdefghijklmnopqrstuvwxyz"]
+                 st[ind+1] not in "(0123456789abcdefghijklmnopqrstuvwxyz.+-"]
     if len(bad_unary) > 0:
         return False
 
