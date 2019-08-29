@@ -2,7 +2,7 @@ import math as mt
 import numpy as np
 import argparse
 import re
-from inspect import signature
+import inspect
 
 
 def get_module_func(module):
@@ -53,8 +53,7 @@ def get_operator_chars(operators):
 
 
 def get_num_of_params(func):
-    sig = signature(func)
-    return len(sig.parameters)
+    return len(inspect.getfullargspec(mt.pow)[0])
 
 
 def calculator(st, mt=mt, basic_operators=False, compound_operators=False, priority_dict=False, good_chars=False):
