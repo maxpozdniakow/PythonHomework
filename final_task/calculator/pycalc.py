@@ -6,18 +6,14 @@ from inspect import signature
 
 
 def get_module_func(module):
-    """
-        get module functions
-    """
+    """get module functions"""
 
     object_arr = [i for i in dir(module) if not(i.startswith("__"))]
     return {i: getattr(mt, i) for i in object_arr if type(getattr(mt, i)) != float}
 
 
 def get_module_const(module):
-    """
-        get module constants
-    """
+    """get module constants"""
     object_arr = [i for i in dir(module) if not(i.startswith("__"))]
     return {i: getattr(mt, i) for i in object_arr if type(getattr(mt, i)) == float}
 
@@ -365,7 +361,7 @@ def split_simple_exp(st, basic_operators, compound_operators):
 
 def split_by_comma(st):
     """
-        splitting string with comma as separator only on the top level of expression( without touching anything inside brackets.)
+    splitting string with comma as separator only on the top level of expression( without touching anything inside brackets.)
     """
 
     it = 0
