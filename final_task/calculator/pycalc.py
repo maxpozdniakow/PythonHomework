@@ -14,9 +14,11 @@ def get_module_const(module):
     object_arr = [i for i in dir(module) if not(i.startswith("__"))]
     return {i: getattr(mt, i) for i in object_arr if type(getattr(mt, i)) == float}
 
+
 def get_operator_chars(operators):
     operator_chars = "".join(set("".join(list(operators))))
     return operator_chars
+
 
 def get_num_of_params(func, func_dict):
     if (func == "pow") or (func == "log"):
