@@ -6,7 +6,7 @@ from inspect import signature
 
 
 def get_module_func(module):
-	"""get module functions"""
+"""get module functions"""
     object_arr = [i for i in dir(module) if not(i.startswith("__"))]
     return {i: getattr(mt, i) for i in object_arr if type(getattr(mt, i)) != float}
 
