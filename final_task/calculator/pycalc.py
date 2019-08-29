@@ -2,6 +2,7 @@ import math as mt
 import numpy as np
 import argparse
 import re
+from inspect import signature
 
 
 def get_module_func(module):
@@ -17,6 +18,11 @@ def get_module_const(module):
 def get_operator_chars(operators):
     operator_chars = "".join(set("".join(list(operators))))
     return operator_chars
+
+
+def get_num_of_params(func):
+    sig = signature(func)
+    return len(sig.parameters)
 
 
 def calculator(st, mt=mt, basic_operators=False, compound_operators=False, priority_dict=False, good_chars=False):
@@ -81,12 +87,10 @@ def calculator(st, mt=mt, basic_operators=False, compound_operators=False, prior
 
     # preprocessing
     st = make_lower(st)
-    st=remove_spaces(st)
+    st = remove_spaces(st)
 
     if not(check_not_empty(st)):
         return "ERROR: BLA BLA BLA"
-
-
 
     if not(
             check_chars(st, good_chars)):
@@ -96,22 +100,15 @@ def calculator(st, mt=mt, basic_operators=False, compound_operators=False, prior
             check_dots(st)):
         return "ERROR: BLA BLA BLA"
 
-
-
     if not(
         check_quote_balance(st) and
         check_not_empty_quotes(st)
     ):
         return "ERROR: BLA BLA BLA"
 
-
-
     st = replace_const(st, const_dict)
     if not(st):
         return "ERROR: BLA BLA BLA"
-
-
-
 
     if not(
         check_functions(st, funcs)
@@ -120,15 +117,19 @@ def calculator(st, mt=mt, basic_operators=False, compound_operators=False, prior
         return "ERROR: BLA BLA BLA"
 
 
-
-    if not(
-            check_operators(st, basic_operators, compound_operators) and
-            check_operator_arg(st, operator_chars)):
-        return "ERROR: BLA BLA BLA"
+#     if not(
+#     check_operators(st,basic_operators,compound_operators) and
+#     check_operator_arg(st,operator_chars)):
+#         return "ERROR: BLA BLA BLA"
 
     st = split_by_quotes(st, basic_operators, compound_operators)
+    st = replace_unary(st)
 
-    return calc_rec(st, func_dict, priority_dict, operators)
+    rez = calc_rec(st, func_dict, priority_dict, operators)
+    if not(rez):
+        return "ERROR: BLA BLA BLA"
+    else:
+        return rez
 
 
 def check_not_empty(st):
@@ -147,13 +148,6 @@ def check_chars(string, good_chars):
         return False
     else:
         return True
-
-# def check_dots(st):
-#         t=re.findall("[^0-9]\.[^0-9]|^\.[^0-9]|[^0-9]\.$",st)
-#         if len(t)>0:
-#             return t
-#         else:
-#             return False
 
 
 def check_dots(st):
@@ -202,9 +196,6 @@ def check_not_empty_quotes(st):
         return True
 
 
-"asd".replace("a", "b")
-
-
 def replace_const(st, const_dict):
     p = re.compile("[a-z]+")
     edges = [(m.start(), m.end(), m.group())
@@ -219,18 +210,23 @@ def replace_const(st, const_dict):
     return "".join(edges)
 
 
-[i+"(" for i in set(["a", "b", "c"])]
-
-consts = get_module_const(mt)
-consts
-
-
 def check_functions(st, functions):
     # checking if all words in string are functions
     tmp_re_1 = r"([a-z]+[\w]*)"
     all_func = re.findall(tmp_re_1, st)
     if len(set(all_func)-set(functions)) != 0:
         return False
+
+
+#     #check if there are any nums near brackets
+
+#     if len(set(re.findall("([\w]+\()",st))-set([i+"(" for i in functions]))!=0:
+#         return False
+
+
+#     if len(re.findall("([a-z]+[^\(]+)",st))!=0:
+#         return False
+
     return True
 
 
@@ -389,6 +385,59 @@ def split_by_quotes(st, basic_operators, compound_operators, is_func=False):
     return split_arr
 
 
+def replace_atom_unary(arr):
+    if arr[0] == arr[1]:
+        return "+"
+    else:
+        return "-"
+
+
+def replace_unary(exp):
+    if type(exp) == list:
+        rez_arr = []
+        for ind in range(len(exp))[:-1]:
+            if type(exp[ind]) == list:
+                rez_arr.append(replace_unary(exp))
+            else:
+                if exp[ind] in ["+", "-"] and exp[ind+1] in ["+", "-"]:
+
+                    exp[ind+1] = replace_atom_unary((exp[ind], exp[ind+1]))
+#                     rez_arr.append(exp[ind+1])
+                else:
+                    rez_arr.append(exp[ind])
+        rez_arr.append(exp[-1])
+    else:
+        return False
+    return rez_arr
+
+
+def replace_unary(exp):
+    if type(exp) == list:
+        rez_arr = []
+
+        for ind in range(len(exp))[:-1]:
+
+            if type(exp[ind]) == list:
+                rez_arr.append(replace_unary(exp[ind]))
+            elif exp[ind] in ["+", "-"] and exp[ind+1] in ["+", "-"]:
+                exp[ind+1] = replace_atom_unary((exp[ind], exp[ind+1]))
+#                     rez_arr.append(exp[ind+1])
+            else:
+                rez_arr.append(exp[ind])
+        rez_arr.append(replace_unary(exp[-1]))
+    else:
+
+        return exp
+    return rez_arr
+
+
+def replace_atom_unary(arr):
+    if arr[0] == arr[1]:
+        return "+"
+    else:
+        return "-"
+
+
 def key_by_pripority(x, priority_dict):
     if x[0] == priority_dict["^"]:
         return (x[0], x[1])
@@ -398,21 +447,30 @@ def key_by_pripority(x, priority_dict):
 
 def calc_rec(exp_arr, func_dict, priority_dict, operators):
 
-
     if type(exp_arr) == list:
 
+        # numbers to float
         exp_arr = [float(i) if((type(i) == str) and i.replace(
             '.', '', 1).isdigit()) else i for i in exp_arr]
 
+        # calculate brackets
         exp_arr = [calc_rec(i, func_dict, priority_dict, operators) if type(
             i) == list else i for i in exp_arr]
+
+        # exit recursion with error
+        if False in exp_arr:
+            return False
+
         func_ind = [ind for ind, i in enumerate(exp_arr) if (
             type(i) == str) and (i in func_dict.keys())]
-        while (len(func_ind) > 0):
 
+        # calculate functions
+        while (len(func_ind) > 0):
             i = func_ind[0]
 
             if(type(exp_arr[i+1]) == list):
+                if len(exp_arr[i+1]) > get_num_of_params(func_dict[exp_arr[i]]):
+                    return False
                 exp_arr[i] = func_dict[exp_arr[i]](*exp_arr[i+1])
             else:
                 exp_arr[i] = func_dict[exp_arr[i]](exp_arr[i+1])
@@ -420,19 +478,28 @@ def calc_rec(exp_arr, func_dict, priority_dict, operators):
             func_ind = [ind for ind, i in enumerate(exp_arr) if (
                 type(i) == str) and (i in func_dict.keys())]
 
+        # calculate unary operators
+        op_ind = [(priority_dict[i], ind) for ind, i in enumerate(
+            exp_arr) if (type(i) == str) and i in operators.keys()]
+        drop_arr = []
+        for i in op_ind:
+            ind = i[1]
+            if exp_arr[ind] in ["+", "-"] and ((ind == 0) or not type(exp_arr[ind-1]) == float):
+
+                drop_arr.append(ind)
+                exp_arr[ind+1] = {"-": -1, "+": 1}[exp_arr[ind]]*exp_arr[ind+1]
+        exp_arr = [i for ind, i in enumerate(exp_arr) if ind not in drop_arr]
+
+        # calculate operators
         op_ind = [(priority_dict[i], ind) for ind, i in enumerate(
             exp_arr) if (type(i) == str) and i in operators.keys()]
         op_ind = sorted(op_ind, key=lambda x: key_by_pripority(
             x, priority_dict), reverse=True)
-
         while (len(op_ind) > 0):
             i = op_ind[0][1]
             arg_1 = exp_arr[i-1]
             arg_2 = exp_arr[i+1]
-
-
             exp_arr[i] = operators[exp_arr[i]](arg_1, arg_2)
-
             del exp_arr[i-1]
             del exp_arr[i]
 
@@ -440,18 +507,12 @@ def calc_rec(exp_arr, func_dict, priority_dict, operators):
                 exp_arr) if (type(i) == str) and i in operators.keys()]
             op_ind = sorted(op_ind, key=lambda x: key_by_pripority(
                 x, priority_dict), reverse=True)
+
         if len(exp_arr) == 1:
+
             return exp_arr[0]
 
     return exp_arr
-
-def main():
-    parser = argparse.ArgumentParser(
-        description='Pure-python command-line calculator.')
-    parser.add_argument('EXPRESSION', type=str,
-                        help='expression string to evaluate')
-    args = parser.parse_args()
-    print(calculator(args.EXPRESSION, mt))
 
 def main():
     parser = argparse.ArgumentParser(
