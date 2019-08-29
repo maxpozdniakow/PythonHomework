@@ -14,14 +14,9 @@ def get_module_const(module):
     object_arr = [i for i in dir(module) if not(i.startswith("__"))]
     return {i: getattr(mt, i) for i in object_arr if type(getattr(mt, i)) == float}
 
-
-
-
 def get_operator_chars(operators):
     operator_chars = "".join(set("".join(list(operators))))
     return operator_chars
-
-
 
 def get_num_of_params(func, func_dict):
     if (func == "pow") or (func == "log"):
@@ -293,12 +288,12 @@ def check_functions(st, functions):
         return False
 
     # check if there are any nums near brackets
-    found_arr = re.findall("([a-z0-9]+)\(", st)
+    found_arr = re.findall(r"([a-z0-9]+)\(", st)
 
     if len(set(found_arr)-set(functions)) != 0:
         return False
 
-    found_arr = re.findall("[a-z0-9]\(", st)
+    found_arr = re.findall(r"[a-z0-9]\(", st)
 
     if len(found_arr) != len(all_func):
         return False
@@ -328,8 +323,7 @@ def check_functions(st, functions):
 def check_function_quotes(st):
     for ind, i in enumerate(st[:-1]):
         if i.isalpha():
-            if (not st[ind+1].isalpha()
-                ) and st[ind+1] != "(":
+            if (not st[ind+1].isalpha()) and st[ind+1] != "(":
                 return False
 
     if st[-1].isalpha():
