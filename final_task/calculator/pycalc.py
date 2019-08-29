@@ -321,24 +321,44 @@ def check_functions(st, functions):
     if len(set(all_func)-set(functions)) != 0:
         return False
 
+    # check if there are any nums near brackets
+    found_arr = re.findall("([a-z0-9]+)\(", st)
 
-#     #check if there are any nums near brackets
+    if len(set(found_arr)-set(functions)) != 0:
+        return False
 
-#     if len(set(re.findall("([\w]+\()",st))-set([i+"(" for i in functions]))!=0:
-#         return False
+    found_arr = re.findall("[a-z0-9]\(", st)
 
-
-#     if len(re.findall("([a-z]+[^\(]+)",st))!=0:
-#         return False
+    if len(found_arr) != len(all_func):
+        return False
 
     return True
 
+# def check_functions(st,functions):
+#     #checking if all words in string are functions
+#     tmp_re_1=r"([a-z]+[\w]*)"
+#     all_func=re.findall(tmp_re_1,st)
+#     if len(set(all_func)-set(functions))!=0:
+#         return False
+
+
+# #     #check if there are any nums near brackets
+
+# #     if len(set(re.findall("([\w]+\()",st))-set([i+"(" for i in functions]))!=0:
+# #         return False
+
+
+# #     if len(re.findall("([a-z]+[^\(]+)",st))!=0:
+# #         return False
+
+
+#     return True
 
 def check_function_quotes(st):
     for ind, i in enumerate(st[:-1]):
         if i.isalpha():
             if (not st[ind+1].isalpha()
-                    ) and st[ind+1] != "(":
+                ) and st[ind+1] != "(":
                 return False
 
     if st[-1].isalpha():
@@ -353,14 +373,18 @@ def check_operators(st, basic_operators, compound_operators):
         {**basic_operators, **compound_operators})
     operator_chars_re = "".join(np.asarray(
         (list(zip("\\"*len(operator_chars), operator_chars)))).reshape((-1,)))
+    operators = list(basic_operators)+list(compound_operators)
 
     tmp_re = "["+operator_chars_re+"]"+"+"
     found_arr = re.findall(tmp_re, st)
-    found_arr = [i for i in found_arr if len(set(i)-{"+", "-"}) > 0]
+    found_arr = [i for i in found_arr if (len(set(i)-{"+", "-"}) > 0)]
+    found_arr = [i for i in found_arr if (
+        i[:-1] not in operators) and i[-1] in ["+", "-"]]
 
     if len(set(found_arr)-(set(basic_operators
                                ).union(set(compound_operators)))) > 0:
-        return False
+        return set(found_arr)-(set(basic_operators
+                                   ).union(set(compound_operators)))
     else:
         return True
 
@@ -707,27 +731,6 @@ def calc_rec(exp_arr, func_dict, priority_dict, operators):
             return exp_arr[0]
 
     return exp_arr
-
-
-def check_functions(st, functions):
-    # checking if all words in string are functions
-    tmp_re_1 = r"([a-z]+[\w]*)"
-    all_func = re.findall(tmp_re_1, st)
-    if len(set(all_func)-set(functions)) != 0:
-        return False
-
-    # check if there are any nums near brackets
-    found_arr = re.findall("([a-z0-9]+)\(", st)
-
-    if len(set(found_arr)-set(functions)) != 0:
-        return False
-
-    found_arr = re.findall("[a-z0-9]\(", st)
-
-    if len(found_arr) != len(all_func):
-        return False
-
-    return True
 
 
 def main():
