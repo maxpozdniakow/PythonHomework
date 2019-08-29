@@ -6,21 +6,19 @@ from inspect import signature
 
 
 def get_module_func(module):
+    """
+        get module functions
+    """
 
-"""
-    get module functions
-"""
-
-   object_arr = [i for i in dir(module) if not(i.startswith("__"))]
+    object_arr = [i for i in dir(module) if not(i.startswith("__"))]
     return {i: getattr(mt, i) for i in object_arr if type(getattr(mt, i)) != float}
 
 
 def get_module_const(module):
-
-"""
-    get module constants
-"""
-   object_arr = [i for i in dir(module) if not(i.startswith("__"))]
+    """
+        get module constants
+    """
+    object_arr = [i for i in dir(module) if not(i.startswith("__"))]
     return {i: getattr(mt, i) for i in object_arr if type(getattr(mt, i)) == float}
 
 
@@ -61,32 +59,29 @@ good_chars = "abcdefghijklmnopqrstuvwxyz"+"0123456789"+"()"+" ,."
 
 
 def get_operator_chars(operators):
-
-"""
-    get operator symbols
-"""
-   operator_chars = "".join(set("".join(list(operators))))
+    """
+        get operator symbols
+    """
+    operator_chars = "".join(set("".join(list(operators))))
     return operator_chars
 
 
 def get_num_of_params(func, func_dict):
-
-"""
-    get the number arguments
-"""
-   if (func == "pow") or (func == "log"):
+    """
+        get the number arguments
+    """
+    if (func == "pow") or (func == "log"):
         return 2
     sig = signature(func_dict[func])
     return len(sig.parameters)
 
 
 def calculator(st, mt, basic_operators, compound_operators, priority_dict, good_chars):
-
-"""
-    The funciton, where all conditions are being checked and the expression is being calculated.
-    Takes a string, returns the calculation result.
-"""
-   operators = {**basic_operators, **compound_operators}
+    """
+        The funciton, where all conditions are being checked and the expression is being calculated.
+        Takes a string, returns the calculation result.
+    """
+    operators = {**basic_operators, **compound_operators}
     operator_chars = get_operator_chars(operators)
 
     good_chars = good_chars+operator_chars
@@ -142,22 +137,20 @@ def calculator(st, mt, basic_operators, compound_operators, priority_dict, good_
 
 
 def check_not_empty(st):
-
-"""
-    checking if string is empty
-"""
-   if (len(st)) == 0:
+    """
+        checking if string is empty
+    """
+    if (len(st)) == 0:
         return False
     else:
         return True
 
 
 def check_spaces(st, operator_chars):
-
-"""
-    checking, if there are any spaces between numbers or operators
-"""
-   if len(re.findall("[0-9] [0-9]", st)) > 0:
+    """
+        checking, if there are any spaces between numbers or operators
+    """
+    if len(re.findall("[0-9] [0-9]", st)) > 0:
         return False
     operator_chars = ["//" + i for i in operator_chars if i not in "+-"]
     operator_chars = "".join(operator_chars)
@@ -168,30 +161,27 @@ def check_spaces(st, operator_chars):
 
 
 def make_lower(st):
-
-"""
-    lowering string
-"""
-   return st.lower()
+    """
+        lowering string
+    """
+    return st.lower()
 
 
 def check_chars(string, good_chars):
-
-"""
-    checking, if there are any bad symbols.
-"""
-   if len([i for i in string if i not in good_chars]) > 0:
+    """
+        checking, if there are any bad symbols.
+    """
+    if len([i for i in string if i not in good_chars]) > 0:
         return False
     else:
         return True
 
 
 def check_dots(st):
-
-"""
-    checking whereas dots are used properly.
-"""
-   if (len(st) == 1):
+    """
+        checking whereas dots are used properly.
+    """
+    if (len(st) == 1):
         if (st[0] == "."):
             return False
         else:
@@ -206,19 +196,17 @@ def check_dots(st):
 
 
 def remove_spaces(st):
-
-"""
-    removing spaces.
-"""
-   return st.replace(" ", "")
+    """
+        removing spaces.
+    """
+    return st.replace(" ", "")
 
 
 def check_bracket_balance(st):
-
-"""
-    checking brackets balance.
-"""
-   if "(" or ")" in st:
+    """
+        checking brackets balance.
+    """
+    if "(" or ")" in st:
         l_it = 0
         r_it = 0
         for i in st:
@@ -237,22 +225,20 @@ def check_bracket_balance(st):
 
 
 def check_not_empty_brackets(st):
-
-"""
-    checking string on empty brackets
-"""
-   if st.find("()") != -1:
+    """
+        checking string on empty brackets
+    """
+    if st.find("()") != -1:
         return False
     else:
         return True
 
 
 def replace_const(st, const_dict):
-
-"""
-    replacing constant names with its numbers
-"""
-   p = re.compile("[a-z]+")
+    """
+        replacing constant names with its numbers
+    """
+    p = re.compile("[a-z]+")
     edges = [(m.start(), m.end(), m.group())
              for m in p.finditer(st) if m.group() in const_dict]
     edges = sorted(edges)
@@ -266,13 +252,12 @@ def replace_const(st, const_dict):
 
 
 def check_functions(st, functions):
+    """
+        checking functions.
+    """
 
-"""
-    checking functions.
-"""
-
-   # checking if all words in string are functions
-   tmp_re_1 = r"([a-z]+[\w]*)"
+    # checking if all words in string are functions
+    tmp_re_1 = r"([a-z]+[\w]*)"
     all_func = re.findall(tmp_re_1, st)
     if len(set(all_func)-set(functions)) != 0:
         return False
@@ -293,13 +278,11 @@ def check_functions(st, functions):
 
 
 def check_operators(st, basic_operators, compound_operators):
+    """
+        Checking, whereas operators are written correctly.
+    """
 
-
-"""
-Checking, whereas operators are written correctly.
-"""
-
-   operator_chars = get_operator_chars(
+    operator_chars = get_operator_chars(
         {**basic_operators, **compound_operators})
     operator_chars_re = "".join(np.asarray(
         (list(zip("\\"*len(operator_chars), operator_chars)))).reshape((-1,)))
@@ -320,13 +303,11 @@ Checking, whereas operators are written correctly.
 
 
 def check_operator_arg(st, operator_chars):
+    """
+        Checking, whereas operators have proper arguments.
+    """
 
-
-"""
-Checking, whereas operators have proper arguments.
-"""
-
-   if st[-1] in ["+", "-"]:
+    if st[-1] in ["+", "-"]:
         return False
 
     bad_unary = [i for ind, i in enumerate(st)
@@ -352,12 +333,11 @@ Checking, whereas operators have proper arguments.
 
 
 def split_simple_exp(st, basic_operators, compound_operators):
+    """
+        Splitting simple expression without any brackets and commas.
+    """
 
-"""
-Splitting simple expression without any brackets and commas.
-"""
-
-   basic_oper_re = list(zip(["\\"]*len(basic_operators.keys()),
+    basic_oper_re = list(zip(["\\"]*len(basic_operators.keys()),
                              basic_operators.keys(),
                              ["|"]*len(basic_operators.keys())))
     basic_oper_re = "".join(np.asarray(basic_oper_re).reshape((-1,)))[:-1]
@@ -384,12 +364,11 @@ Splitting simple expression without any brackets and commas.
 
 
 def split_by_comma(st):
+    """
+        splitting string with comma as separator only on the top level of expression( without touching anything inside brackets.)
+    """
 
-"""
-splitting string with comma as separator only on the top level of expression( without touching anything inside brackets.)
-"""
-
-   it = 0
+    it = 0
     comma_arr = []
 
     for ind, i in enumerate(st):
@@ -411,12 +390,10 @@ splitting string with comma as separator only on the top level of expression( wi
 
 
 def split_by_brackets(st, basic_operators, compound_operators, is_func=False):
-
-
-"""
-function, which splits the expression and returns a nested list.
-"""
-   operators = {**basic_operators, **compound_operators}
+    """
+        function, which splits the expression and returns a nested list.
+    """
+    operators = {**basic_operators, **compound_operators}
     operator_chars = set("".join(operators.keys()))
     operator_chars = "".join(operator_chars)
 
@@ -475,25 +452,21 @@ function, which splits the expression and returns a nested list.
 
 
 def replace_atom_unary(arr):
-
-
-"""
-replaces two unary operators with one.
-"""
-   if arr[0] == arr[1]:
+    """
+        replaces two unary operators with one.
+    """
+    if arr[0] == arr[1]:
         return "+"
     else:
         return "-"
 
 
 def replace_unary(exp):
+    """
+        Replaces all sequential unary operators in the nested list.
+    """
 
-
-"""
-Replaces all sequential unary operators in the nested list.
-"""
-
-   if type(exp) == list:
+    if type(exp) == list:
         rez_arr = []
 
         for ind in range(len(exp))[:-1]:
@@ -512,22 +485,20 @@ Replaces all sequential unary operators in the nested list.
 
 
 def key_by_pripority(x, priority_dict):
-
-"""
-returns key for sorting non associative operators, power particularly.
-"""
-   if x[0] == priority_dict["^"]:
+    """
+        returns key for sorting non associative operators, power particularly.
+    """
+    if x[0] == priority_dict["^"]:
         return (x[0], x[1])
     else:
         return (x[0], -x[1])
 
 
 def calc_rec(exp_arr, func_dict, priority_dict, operators):
-
-"""
-recursive calculating expression,taking a nested list.
-"""
-   if type(exp_arr) == list:
+    """
+        recursive calculating expression,taking a nested list.
+    """
+    if type(exp_arr) == list:
 
         # numbers to float
         exp_arr = [float(i) if((type(i) == str) and i.replace(
@@ -596,11 +567,10 @@ recursive calculating expression,taking a nested list.
 
 
 def main():
-
-"""
-the main function.
-"""
-   parser = argparse.ArgumentParser(
+    """
+        the main function.
+    """
+    parser = argparse.ArgumentParser(
         description='Pure-python command-line calculator.')
     parser.add_argument('EXPRESSION', type=str,
                         help='expression string to evaluate')
