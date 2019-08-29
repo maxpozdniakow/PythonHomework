@@ -14,10 +14,42 @@ def get_module_const(module):
     object_arr = [i for i in dir(module) if not(i.startswith("__"))]
     return {i: getattr(mt, i) for i in object_arr if type(getattr(mt, i)) == float}
 
+# ЛОГАРИФМЫ! done
+
+# запятые
+
+# функции с цифрами на конце
+
+# App plan:
+
+# проверка и предобработка:
+# make_lower
+# remove_spaces
+# check_not_empty
+# check_chars
+# check_dots
+# 	есть только возможные символы
+# check_quote_balance
+# 	есть только возможные символы, соблюдён баланс скобок
+# check_not_empty_quotes
+# 	есть только возможные символы, соблюдён баланс скобок, в скобках что-то написано
+# replace_const
+# check_functions
+# check_function_quotes
+# 	есть только возможные символы, соблюдён баланс скобок, в скобках что-то написано, все буквенные выражения- функции, все функции написаны правильно
+# check_operators
+# check_operator_arg
+# 	есть только возможные символы, соблюдён баланс скобок, в скобках что-то написано, все буквенные выражения- функции, все функции написаны правильно, все операторы написаны правильно
+
+# вычесления:
+# split_by_quotes
+
 
 def get_operator_chars(operators):
     operator_chars = "".join(set("".join(list(operators))))
     return operator_chars
+
+# ABS!!!!
 
 
 def get_num_of_params(func, func_dict):
@@ -90,6 +122,8 @@ def calculator(st, mt=mt, basic_operators=False, compound_operators=False, prior
     if not(check_not_empty(st)):
         return "ERROR: BLA BLA BLA"
 
+    print("1")
+
     if not(check_spaces(st, operator_chars)):
         return "ERROR: BLA BLA BLA"
 
@@ -105,15 +139,22 @@ def calculator(st, mt=mt, basic_operators=False, compound_operators=False, prior
             check_dots(st)):
         return "ERROR: BLA BLA BLA"
 
+    print("2")
+
     if not(
         check_quote_balance(st) and
         check_not_empty_quotes(st)
     ):
         return "ERROR: BLA BLA BLA"
 
+    print("3")
+
     st = replace_const(st, const_dict)
     if not(st):
         return "ERROR: BLA BLA BLA"
+
+    print(st)
+    print("4")
 
     if not(
         check_functions(st, funcs)
@@ -121,14 +162,16 @@ def calculator(st, mt=mt, basic_operators=False, compound_operators=False, prior
     ):
         return "ERROR: BLA BLA BLA"
 
+    print("5")
+
     if not(
             check_operators(st, basic_operators, compound_operators) and
             check_operator_arg(st, operator_chars)):
         return "ERROR: BLA BLA BLA"
-
+    print(st)
     st = split_by_quotes(st, basic_operators, compound_operators)
     st = replace_unary(st)
-
+    print(st)
     rez = calc_rec(st, func_dict, priority_dict, operators)
     if rez == "error":
         return "ERROR: BLA BLA BLA"
@@ -289,16 +332,23 @@ def check_functions(st, functions):
     if len(set(all_func)-set(functions)) != 0:
         return False
 
-    # check if there are any nums near brackets
-    found_arr = re.findall(r"([a-z0-9]+)\(", st)
 
+#     print(1)
+
+    # check if there are any nums near brackets
+    found_arr = re.findall("([a-z0-9]+)\(", st)
+    print(found_arr)
     if len(set(found_arr)-set(functions)) != 0:
         return False
 
-    found_arr = re.findall(r"[a-z0-9]\(", st)
+    print(2)
 
+    found_arr = re.findall("[a-z0-9]\(", st)
+    print(found_arr)
     if len(found_arr) != len(all_func):
         return False
+
+    print(3)
 
     return True
 
@@ -309,23 +359,29 @@ def check_functions(st, functions):
 #     if len(set(all_func)-set(functions))!=0:
 #         return False
 
+# #     print(1)
 
 # #     #check if there are any nums near brackets
-
+# #     print(re.findall("([\w]+\()",st))
 # #     if len(set(re.findall("([\w]+\()",st))-set([i+"(" for i in functions]))!=0:
 # #         return False
 
+# #     print(2)
 
+# #     print(re.findall("([a-z]+[^\(]+)",st))
 # #     if len(re.findall("([a-z]+[^\(]+)",st))!=0:
 # #         return False
 
+# #     print(3)
 
 #     return True
+
 
 def check_function_quotes(st):
     for ind, i in enumerate(st[:-1]):
         if i.isalpha():
-            if (not st[ind+1].isalpha()) and st[ind+1] != "(":
+            if (not st[ind+1].isalpha()
+                ) and st[ind+1] != "(":
                 return False
 
     if st[-1].isalpha():
@@ -348,6 +404,7 @@ def check_operators(st, basic_operators, compound_operators):
     found_arr = [i for i in found_arr if (
         i[:-1] not in operators) and i[-1] in ["+", "-"]]
 
+    print(found_arr)
     if len(set(found_arr)-(set(basic_operators
                                ).union(set(compound_operators)))) > 0:
         return set(found_arr)-(set(basic_operators
@@ -585,7 +642,7 @@ def replace_unary(exp):
                 rez_arr.append(replace_unary(exp))
             else:
                 if exp[ind] in ["+", "-"] and exp[ind+1] in ["+", "-"]:
-
+                    print(exp[ind], exp[ind+1])
                     exp[ind+1] = replace_atom_unary((exp[ind], exp[ind+1]))
 #                     rez_arr.append(exp[ind+1])
                 else:
@@ -652,7 +709,7 @@ def calc_rec(exp_arr, func_dict, priority_dict, operators):
         # calculate functions
         while (len(func_ind) > 0):
             i = func_ind[0]
-
+            print("FUNCTION:", exp_arr[i], exp_arr[i+1])
             if(type(exp_arr[i+1]) == list):
                 if len(exp_arr[i+1]) > get_num_of_params(exp_arr[i], func_dict):
                     return "error"
@@ -670,10 +727,11 @@ def calc_rec(exp_arr, func_dict, priority_dict, operators):
         for i in op_ind:
             ind = i[1]
             if exp_arr[ind] in ["+", "-"] and ((ind == 0) or not type(exp_arr[ind-1]) == float):
-
+                print("OPER PASS CND", exp_arr[ind])
                 drop_arr.append(ind)
                 exp_arr[ind+1] = {"-": -1, "+": 1}[exp_arr[ind]]*exp_arr[ind+1]
         exp_arr = [i for ind, i in enumerate(exp_arr) if ind not in drop_arr]
+        print(exp_arr)
 
         # calculate operators
         op_ind = [(priority_dict[i], ind) for ind, i in enumerate(
@@ -694,9 +752,9 @@ def calc_rec(exp_arr, func_dict, priority_dict, operators):
                 x, priority_dict), reverse=True)
 
         if len(exp_arr) == 1:
-
+            print("EXIT 1 EL: ", exp_arr[0])
             return exp_arr[0]
-
+    print("EXIT: ", exp_arr)
     return exp_arr
 
 
