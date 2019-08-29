@@ -24,8 +24,7 @@ basic_operators = {"+": lambda x, y: x+y,
                    "+": lambda x, y: x+y,
                    "<": lambda x, y: int(x < y),
                    ">": lambda x, y: int(x > y),
-                   "<": lambda x, y: int(x < y)
-                   }
+                   "<": lambda x, y: int(x < y)}
 
 compound_operators = {
     "//": lambda x, y: x//y,
@@ -218,12 +217,12 @@ def check_functions(st, functions):
         return False
 
     # check if there are any nums near brackets
-    found_arr = re.findall("([a-z0-9]+)\(", st)
+    found_arr = re.findall(r"([a-z0-9]+)\(", st)
 
     if len(set(found_arr)-set(functions)) != 0:
         return False
 
-    found_arr = re.findall("[a-z0-9]\(", st)
+    found_arr = re.findall(r"[a-z0-9]\(", st)
 
     if len(found_arr) != len(all_func):
         return False
@@ -234,8 +233,7 @@ def check_functions(st, functions):
 def check_function_brackets(st):
     for ind, i in enumerate(st[:-1]):
         if i.isalpha():
-            if (not st[ind+1].isalpha()
-                ) and st[ind+1] != "(":
+            if (not st[ind+1].isalpha()) and st[ind+1] != "(":
                 return False
 
     if st[-1].isalpha():
