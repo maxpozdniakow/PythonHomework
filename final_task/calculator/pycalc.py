@@ -14,43 +14,9 @@ def get_module_const(module):
     object_arr = [i for i in dir(module) if not(i.startswith("__"))]
     return {i: getattr(mt, i) for i in object_arr if type(getattr(mt, i)) == float}
 
-# ЛОГАРИФМЫ! done
-
-# запятые
-
-# функции с цифрами на конце
-
-# App plan:
-
-# проверка и предобработка:
-# make_lower
-# remove_spaces
-# check_not_empty
-# check_chars
-# check_dots
-# 	есть только возможные символы
-# check_quote_balance
-# 	есть только возможные символы, соблюдён баланс скобок
-# check_not_empty_quotes
-# 	есть только возможные символы, соблюдён баланс скобок, в скобках что-то написано
-# replace_const
-# check_functions
-# check_function_quotes
-# 	есть только возможные символы, соблюдён баланс скобок, в скобках что-то написано, все буквенные выражения- функции, все функции написаны правильно
-# check_operators
-# check_operator_arg
-# 	есть только возможные символы, соблюдён баланс скобок, в скобках что-то написано, все буквенные выражения- функции, все функции написаны правильно, все операторы написаны правильно
-
-# вычесления:
-# split_by_quotes
-
-
 def get_operator_chars(operators):
     operator_chars = "".join(set("".join(list(operators))))
     return operator_chars
-
-# ABS!!!!
-
 
 def get_num_of_params(func, func_dict):
     if (func == "pow") or (func == "log"):
