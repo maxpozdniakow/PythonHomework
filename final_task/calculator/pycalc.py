@@ -669,6 +669,7 @@ def calc_rec(exp_arr, func_dict, priority_dict, operators):
 
     return exp_arr
 
+
 def main():
     parser = argparse.ArgumentParser(
         description='Pure-python command-line calculator.')
